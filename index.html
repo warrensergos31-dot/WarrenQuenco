@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Realistic Calculator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===== BACKGROUND ===== */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #3a3f4b, #1c1f26);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ===== CALCULATOR BODY ===== */
+.calculator {
+    width: clamp(280px, 90vw, 380px);
+    padding: clamp(20px, 4vw, 35px);
+    border-radius: 35px;
+
+    background: linear-gradient(145deg, #2a2e38, #1a1d24);
+    
+    box-shadow:
+        15px 15px 30px #121418,
+        -10px -10px 25px #2f3440,
+        inset 0 0 10px rgba(255,255,255,0.03);
+
+    position: relative;
+}
+
+/* Top light reflection */
+.calculator::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    border-radius: 35px 35px 0 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+    pointer-events: none;
+}
+
+/* ===== DISPLAY ===== */
+.display {
+    background: #000;
+    color: #00ff88;
+    border-radius: 18px;
+    padding: clamp(15px, 3vw, 25px);
+    margin-bottom: clamp(20px, 4vw, 30px);
+
+    font-family: 'Courier New', monospace;
+    text-align: right;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,255,136,0.3),
+        inset 0 -5px 10px rgba(0,0,0,0.8);
+
+    min-height: clamp(70px, 15vw, 100px);
+}
+
+.previous-operand {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    color: rgba(0,255,136,0.6);
+}
+
+.current-operand {
+    font-size: clamp(2.5rem, 7vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* ===== BUTTON GRID ===== */
+.buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(10px, 2vw, 20px);
+}
+
+/* ===== BUTTONS ===== */
+button {
+    height: clamp(55px, 12vw, 75px);
+    border-radius: 18px;
+    border: none;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+
+    background: linear-gradient(145deg, #3a3f4b, #2a2e38);
+
+    box-shadow:
+        0 8px 0 #1a1d24,
+        0 12px 20px rgba(0,0,0,0.5);
+
+    transition: all 0.1s ease;
+}
+
+/* Press effect */
+button:active {
+    transform: translateY(8px);
+    box-shadow:
+        0 2px 0 #1a1d24,
+        0 5px 10px rgba(0,0,0,0.5);
+}
+
+/* Numbers */
+button[data-number] {
+    background: linear-gradient(145deg, #434958, #2f3440);
+}
+
+/* Operators */
+.btn-operator {
+    background: linear-gradient(145deg, #ff9f0a, #e08900);
+    box-shadow:
+        0 8px 0 #b86b00,
+        0 12px 20px rgba(0,0,0,0.5);
+}
+
+.btn-operator:active {
+    box-shadow:
+        0 2px 0 #b86b00,
+        0 5px 10px rgba(0,0,0,0.5);
+}
+
+/* AC */
+.btn-ac {
+    background: linear-gradient(145deg, #ff4d4d, #cc0000);
+    box-shadow:
+        0 8px 0 #990000,
+        0 12px 20px rgba(0,0,0,0.5);
+}
+
+/* DEL */
+.btn-del {
+    background: linear-gradient(145deg, #4da6ff, #0066cc);
+    box-shadow:
+        0 8px 0 #004c99,
+        0 12px 20px rgba(0,0,0,0.5);
+}
+
+.span-two {
+    grid-column: span 2;
+}
+
+</style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="display">
+        <div class="previous-operand" data-previous></div>
+        <div class="current-operand" data-current>0</div>
+    </div>
+
+    <div class="buttons-grid">
+        <button class="btn-ac" data-all-clear>AC</button>
+        <button class="btn-del" data-delete>DEL</button>
+        <button class="btn-operator" data-operation>%</button>
+        <button class="btn-operator" data-operation>÷</button>
+
+        <button data-number>7</button>
+        <button data-number>8</button>
+        <button data-number>9</button>
+        <button class="btn-operator" data-operation>×</button>
+
+        <button data-number>4</button>
+        <button data-number>5</button>
+        <button data-number>6</button>
+        <button class="btn-operator" data-operation>-</button>
+
+        <button data-number>1</button>
+        <button data-number>2</button>
+        <button data-number>3</button>
+        <button class="btn-operator" data-operation>+</button>
+
+        <button data-number class="span-two">0</button>
+        <button data-number>.</button>
+        <button class="btn-operator" data-equals>=</button>
+    </div>
+</div>
+
+<script>
+/* KEEPING YOUR ORIGINAL JS EXACTLY THE SAME */
+const currentOperandTextElement = document.querySelector('[data-current]');
+const previousOperandTextElement = document.querySelector('[data-previous]');
+const buttons = document.querySelectorAll('button');
+
+class Calculator {
+    constructor(currentOperandTextElement, previousOperandTextElement) {
+        this.currentOperandTextElement = currentOperandTextElement;
+        this.previousOperandTextElement = previousOperandTextElement;
+        this.clear();
+    }
+    clear() { this.currentOperand=''; this.previousOperand=''; this.operation=undefined; }
+    delete() { this.currentOperand=this.currentOperand.toString().slice(0,-1); }
+    appendNumber(number){ if(number==='.'&&this.currentOperand.includes('.'))return;
+        this.currentOperand=this.currentOperand.toString()+number.toString(); }
+    chooseOperation(operation){
+        if(this.currentOperand==='')return;
+        if(this.previousOperand!==''){ this.compute(); }
+        this.operation=operation;
+        this.previousOperand=this.currentOperand;
+        this.currentOperand='';
+    }
+    compute(){
+        let computation;
+        const prev=parseFloat(this.previousOperand);
+        const current=parseFloat(this.currentOperand);
+        if(isNaN(prev)||isNaN(current))return;
+        switch(this.operation){
+            case '+': computation=prev+current; break;
+            case '-': computation=prev-current; break;
+            case '×': computation=prev*current; break;
+            case '÷': if(current===0){alert("Cannot divide by zero!");return;}
+                computation=prev/current; break;
+            case '%': computation=prev%current; break;
+            default: return;
+        }
+        this.currentOperand=computation;
+        this.operation=undefined;
+        this.previousOperand='';
+    }
+    getDisplayNumber(number){
+        const stringNumber=number.toString();
+        const integerDigits=parseFloat(stringNumber.split('.')[0]);
+        const decimalDigits=stringNumber.split('.')[1];
+        let integerDisplay;
+        if(isNaN(integerDigits)){ integerDisplay=''; }
+        else{ integerDisplay=integerDigits.toLocaleString('en',{maximumFractionDigits:0}); }
+        if(decimalDigits!=null){ return `${integerDisplay}.${decimalDigits}`; }
+        else{ return integerDisplay; }
+    }
+    updateDisplay(){
+        this.currentOperandTextElement.innerText=this.getDisplayNumber(this.currentOperand);
+        if(this.operation!=null){
+            this.previousOperandTextElement.innerText=
+                `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`;
+        } else { this.previousOperandTextElement.innerText=''; }
+    }
+}
+
+const calculator=new Calculator(currentOperandTextElement,previousOperandTextElement);
+
+buttons.forEach(button=>{
+    button.addEventListener('click',()=>{
+        if(button.hasAttribute('data-number')){
+            calculator.appendNumber(button.innerText);
+            calculator.updateDisplay();
+        }
+        if(button.hasAttribute('data-operation')){
+            calculator.chooseOperation(button.innerText);
+            calculator.updateDisplay();
+        }
+        if(button.hasAttribute('data-equals')){
+            calculator.compute();
+            calculator.updateDisplay();
+        }
+        if(button.hasAttribute('data-all-clear')){
+            calculator.clear();
+            calculator.updateDisplay();
+        }
+        if(button.hasAttribute('data-delete')){
+            calculator.delete();
+            calculator.updateDisplay();
+        }
+    });
+});
+</script>
+
+</body>
+</html>
